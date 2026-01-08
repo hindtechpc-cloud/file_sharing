@@ -26,7 +26,7 @@ export const SignupSchema = z
         required_error: "Password is required",
         invalid_type_error: "Password must be a valid text",
       })
-      .min(8, "Password must be at least 8 characters long")
+      .min(6, "Password must be at least 6 characters long")
       .max(20, "Password cannot exceed 20 characters"),
 
     confirmPassword: z.string({
@@ -59,7 +59,7 @@ export const SignupSchema = z
         required_error: "Password is required",
         invalid_type_error: "Password must be a valid text",
       })
-      .min(8, "Password must be at least 8 characters long")
+      .min(6, "Password must be at least 6 characters long")
       .max(20, "Password cannot exceed 20 characters"),
 
   })

@@ -3,9 +3,10 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 const generateToken = async (id) => {
+  console.log(id);
   let token;
   try {
-    token = jwt.sign({ id }, process.env.SECRET_KEY);
+    token = jwt.sign({ user:id }, process.env.SECRET_KEY);
   } catch (error) {
     console.log(error.message);
     return null;
@@ -53,9 +54,10 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(password)
   let user;
   try {
-    user = await User.find({ email: email }).select("-password");
+    user = await User.findOne({ email: email });
   } catch (error) {
     return res.status(500).json({
       message: "server error",
@@ -67,7 +69,19 @@ export const login = async (req, res) => {
       message: "Your email is wrong",
     });
   }
-  const passwordMatche = bcrypt.compare(password, user.password);
+  console.log(user)
+  let passwordMatche;
+  try {
+   passwordMatche =await bcrypt.compare(password,user.password);
+    
+  } catch (error) {
+     return res.status(500).json({
+      message: "server error",
+      error: error.message,
+    });
+  }
+  console.log("after password match" ,passwordMatche)
+
   if (!passwordMatche) {
     return res.status(404).json({
       message: "Your password is wrong",
@@ -79,8 +93,8 @@ export const login = async (req, res) => {
       message: "token not generated",
     });
   }
-
-  return res.status(201).json({
+user.password=undefined;
+  return res.status(200).json({
     message: "user loggedin successfully",
     user,
     token,

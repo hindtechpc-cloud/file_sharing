@@ -1,20 +1,14 @@
 import React, { useState } from "react";
+import { useContext } from "react";
+import { AuthContext } from "../context/Authcontext";
+import { formatDate } from "../utils/formateDate";
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [user, setUser] = useState({
-    name: "Alex Johnson",
-    email: "alex@mypatrakar.com",
-    role: "Content Creator",
-    joined: "March 2024",
-    totalFiles: 128,
-    sharedFiles: 46,
-    storageUsed: "2.4 GB",
-  });
-
+  const { user, setUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
+    name: user.user?.user?.name,
+    email: user.user?.user?.email,
   });
 
   const handleChange = (e) => {
@@ -22,7 +16,7 @@ export default function Profile() {
   };
 
   const handleSave = () => {
-    setUser({ ...user, ...formData });
+    setUser({ ...user.user, ...formData });
     setIsEditing(false);
   };
 
@@ -41,13 +35,13 @@ export default function Profile() {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex flex-col items-center text-center">
             <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-semibold text-blue-600">
-              {user.name.charAt(0)}
+              {user?.user?.name[0]}
             </div>
 
             <h2 className="mt-4 text-lg font-medium text-gray-800">
-              {user.name}
+              {user?.user?.name}
             </h2>
-            <p className="text-sm text-gray-500">{user.role}</p>
+            <p className="text-sm text-gray-500">{user?.role}</p>
 
             <button
               onClick={() => setIsEditing(true)}
@@ -65,17 +59,17 @@ export default function Profile() {
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <Info label="Full Name" value={user.name} />
-            <Info label="Email Address" value={user.email} />
-            <Info label="Role" value={user.role} />
-            <Info label="Joined On" value={user.joined} />
+            <Info label="Full Name" value={user?.user?.name} />
+            <Info label="Email Address" value={user?.user?.email} />
+            <Info label="Role" value={user?.role||"Content Creator"} />
+            <Info label="Joined On" value={formatDate(user?.user?.createdAt)} />
           </div>
 
           {/* Stats */}
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Stat label="Total Files" value={user.totalFiles} />
-            <Stat label="Shared Files" value={user.sharedFiles} />
-            <Stat label="Storage Used" value={user.storageUsed} />
+            <Stat label="Total Files" value={user.totalFiles||0} />
+            <Stat label="Shared Files" value={user.sharedFiles||0} />
+            <Stat label="Storage Used" value={user.storageUsed||0} />
           </div>
         </div>
       </div>

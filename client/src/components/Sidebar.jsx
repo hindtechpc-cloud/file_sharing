@@ -7,10 +7,13 @@ import { IoIosTimer } from "react-icons/io";
 import LogoutModal from "./LogoutModal";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
+import { useContext } from "react";
+import { AuthContext } from "../context/Authcontext";
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const navItems = [
     {
@@ -48,6 +51,7 @@ const Sidebar = () => {
     setIsLogoutOpen(true);
   };
   const handleConfirmLogout = () => {
+    logout();
     setIsLogoutOpen(false);
     navigate("/login");
   };

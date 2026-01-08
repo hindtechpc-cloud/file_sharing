@@ -6,9 +6,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignupSchema } from "../utils/validations.js";
 import { LuLoaderCircle } from "react-icons/lu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/Authcontext.jsx";
+import axios from "axios";
 
 export default function Signup() {
+  const {login}=useContext(AuthContext);
+  const navigate =useNavigate();
   const {
     register,
     handleSubmit,
@@ -19,9 +24,22 @@ export default function Signup() {
     resolver: zodResolver(SignupSchema),
     mode: "onChange",
   });
-
+const handleSignUpAPI = async (data) => {
+    let res;
+    try {
+      res = await axios.post("http://localhost:5000/api/auth/register", data);
+    } catch (error) {
+      console.log(error);
+    }
+    if (res.status != 201) {
+      alert("you are not logged in");
+    }
+    await login({ user: res?.data?.user, token: res?.data?.token });
+    alert("your account cteated successfully");
+    navigate("/")
+  };
   const onSubmit = (data) => {
-    console.log(data);
+    handleSignUpAPI(data);
     reset();
   };
   

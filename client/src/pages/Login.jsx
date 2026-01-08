@@ -1,13 +1,15 @@
-
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "../utils/validations.js";
 import { LuLoaderCircle } from "react-icons/lu";
-import { Link, NavLink } from "react-router-dom";
-
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/Authcontext.jsx";
+import axios from "axios";
 export default function Login() {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -18,8 +20,24 @@ export default function Login() {
     mode: "onChange",
   });
 
+  const handleLoginAPI = async (data) => {
+    let res;
+    try {
+      res = await axios.post("http://localhost:5000/api/auth/login", data);
+    } catch (error) {
+      console.log(error);
+    }
+    if (res.status != 200) {
+      alert("you are not logged in");
+    }
+    await login({ user: res?.data?.user, token: res?.data?.token });
+    alert("you loggedin successfully");
+
+    navigate("/");
+  };
+
   const onSubmit = (data) => {
-    console.log(data);
+    handleLoginAPI(data);
     reset();
   };
 
@@ -89,7 +107,10 @@ export default function Login() {
         {/* Footer */}
         <p className="text-center text-sm text-gray-500 mt-5">
           I haven't an account?{" "}
-          <Link to="/signup" className="text-[#086b4d] font-medium hover:underline">
+          <Link
+            to="/signup"
+            className="text-[#086b4d] font-medium hover:underline"
+          >
             Sign Up
           </Link>
         </p>
