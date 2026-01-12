@@ -1,12 +1,15 @@
 import { User } from "../models/User.js";
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
+import path from "path";
+import fs from "fs";
 const generateToken = async (id) => {
   console.log(id);
   let token;
   try {
-    token = jwt.sign({ user:id }, process.env.SECRET_KEY);
+    token = jwt.sign({ user: id }, process.env.SECRET_KEY);
   } catch (error) {
     console.log(error.message);
     return null;
@@ -54,7 +57,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(password)
+  console.log(password);
   let user;
   try {
     user = await User.findOne({ email: email });
@@ -69,18 +72,17 @@ export const login = async (req, res) => {
       message: "Your email is wrong",
     });
   }
-  console.log(user)
+  console.log(user);
   let passwordMatche;
   try {
-   passwordMatche =await bcrypt.compare(password,user.password);
-    
+    passwordMatche = await bcrypt.compare(password, user.password);
   } catch (error) {
-     return res.status(500).json({
+    return res.status(500).json({
       message: "server error",
       error: error.message,
     });
   }
-  console.log("after password match" ,passwordMatche)
+  console.log("after password match", passwordMatche);
 
   if (!passwordMatche) {
     return res.status(404).json({
@@ -93,10 +95,80 @@ export const login = async (req, res) => {
       message: "token not generated",
     });
   }
-user.password=undefined;
+  user.password = undefined;
   return res.status(200).json({
     message: "user loggedin successfully",
     user,
     token,
   });
+};
+
+export const updateProfile = async (req, res) => {
+  const { name, email } = req.body;
+  // const profilePic=req.file;
+  const userId = req.decoded;
+
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({
+      message: "Invalid user id",
+    });
+  }
+
+  try {
+    if (email) {
+      const emailUsedByOther = await User.findOne({
+        email,
+        _id: { $ne: userId },
+      });
+
+      if (emailUsedByOther) {
+        return res.status(400).json({
+          message: "This email is already used by another user",
+        });
+      }
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+
+    if (req.file) {
+      if (user.pic) {
+        const oldPic = path.join(process.cwd(), "uploads", user.pic);
+
+        if (fs.existsSync(oldPic)) {
+          fs.unlinkSync(oldPic);
+        }
+      }
+      user.pic = req?.file?.filename;
+    }
+
+    await user.save();
+
+    return res.json({
+      message: "User profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+export const users = async (req, res) => {
+  try {
+    const user = await User.find({});
+    return res.json(user);
+  } catch (error) {
+    console.log(error);
+  }
 };
