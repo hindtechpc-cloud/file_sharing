@@ -1,13 +1,41 @@
 import { useRef, useState } from "react";
-
+import axios from "axios";
+import { useContext } from "react";
+import { AuthContext } from "../../context/Authcontext";
 export default function ProfileSettings() {
+    const { user } = useContext(AuthContext);
   const fileRef = useRef(null);
   const [avatar, setAvatar] = useState(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  const updateProfile = async () => {
+  
+    try {
+      let formData = new FormData();
+      formData.append("file", avatar);
+      formData.append("name", name);
+      formData.append("email", email);
+      const res = await axios.put(
+        "http://localhost:5000/api/auth/profile",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            "Content-Type":"application/form-data"
+          },
+        }
+      );
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
+    updateProfile();
     // Preview image
     setAvatar(URL.createObjectURL(file));
   };
@@ -19,9 +47,7 @@ export default function ProfileSettings() {
 
   return (
     <div className="bg-white border border-gray-100 shadow-2xl rounded-2xl p-6 mb-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Profile
-      </h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile</h2>
 
       {/* Profile Picture */}
       <div className="flex items-center gap-4 mb-6">
@@ -33,9 +59,7 @@ export default function ProfileSettings() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-2xl font-semibold text-blue-600">
-              A
-            </span>
+            <span className="text-2xl font-semibold text-blue-600">A</span>
           )}
         </div>
 
@@ -72,11 +96,13 @@ export default function ProfileSettings() {
           placeholder="Full Name"
           defaultValue="Alex Doe"
           className="border border-gray-100 shadow-2xl rounded-lg px-4 py-2 text-sm"
+          onChange={(e) => setName(e.target.value)}
         />
         <input
           placeholder="Email Address"
           defaultValue="alex.doe@email.com"
           className="border border-gray-100 shadow-2xl rounded-lg px-4 py-2 text-sm"
+          onChange={(e) => setEmail(e.target.value)}
         />
       </div>
 

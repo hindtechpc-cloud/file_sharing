@@ -9,12 +9,17 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import { useContext } from "react";
 import { AuthContext } from "../context/Authcontext";
+import { useEffect } from "react";
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
-  const { logout } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext);
+  const [userData, setUserData] = useState(user?.user);
   const navigate = useNavigate();
+  useEffect(() => {
+    setUserData(user?.user);
+  }, []);
   const navItems = [
     {
       icon: <MdDashboard className="w-5 h-5" />,
@@ -93,12 +98,26 @@ const Sidebar = () => {
         <div className="p-6 border-b border-gray-700">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-blue-600 rounded-full text-white flex items-center justify-center">
-              <span className="font-semibold">A</span>
+              {user?.user?.pic ? (
+                <img
+                  src={`http://localhost:5000/uploads/${user?.user?.pic}`}
+                  className="rounded-full"
+                ></img>
+              ) : (
+                <span className="font-semibold capitalize">
+                  {user?.user?.name[0] || "U"}
+                </span>
+              )}
             </div>
 
             <Link to={"/profile"}>
-              <h3 className="font-semibold text-black">Alex Doe</h3>
-              <p className="text-sm text-gray-400">alex.doe@email.com</p>
+              <h3 className="font-semibold text-black">
+                {" "}
+                {user?.user?.name || "User"}
+              </h3>
+              <p className="text-sm text-gray-400">
+                {user?.user?.name || "exampleemail@gmail.com"}
+              </p>
             </Link>
           </div>
         </div>
