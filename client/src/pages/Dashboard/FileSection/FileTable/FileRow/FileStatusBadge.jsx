@@ -6,8 +6,8 @@ export default function FileStatusBadge({ status, color }) {
   };
 
   return (
-    <span className={`px-3 py-1 rounded-full text-xs ${colors[color]}`}>
-      {status}
+    <span className={`px-3 py-1 rounded-full text-xs`}>
+      {status }
     </span>
   );
 }

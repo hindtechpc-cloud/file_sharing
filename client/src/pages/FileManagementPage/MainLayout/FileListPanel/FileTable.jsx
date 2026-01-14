@@ -1,3 +1,4 @@
+import { formatDate } from "../../../../utils/formateDate";
 import FileRow from "./FileTable/FileRow";
 import FileTableHeader from "./FileTable/FileTableHeader";
 
@@ -11,7 +12,7 @@ export default function FileTable({ files, onSelectFile }) {
           <tbody>
             {files.map((file) => (
               <FileRow
-                key={file.id}
+                key={file._id}
                 file={file}
                 onClick={() => onSelectFile(file)}
               />
@@ -28,20 +29,16 @@ export default function FileTable({ files, onSelectFile }) {
             onClick={() => onSelectFile(file)}
             className="bg-white border rounded-xl p-4 space-y-2 cursor-pointer"
           >
-            <div className="font-medium text-gray-800">
-              {file.name}
-            </div>
+            <div className="font-medium text-gray-800">{file.name}</div>
 
             <div className="flex justify-between text-sm text-gray-500">
-              <span>{file.modified}</span>
+              <span>{formatDate(file.updatedAt)}</span>
               <span>{file.size}</span>
             </div>
 
             <div className="text-xs">
               Status:{" "}
-              <span className="font-medium capitalize">
-                {file.status}
-              </span>
+              <span className="font-medium capitalize">{file?.status.enum[0]}</span>
             </div>
           </div>
         ))}

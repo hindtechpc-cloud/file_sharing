@@ -7,13 +7,14 @@ const fileSchema = new mongoose.Schema(
       required: [true, "file is required"],
     },
     actins: {
-      enum: ["uploaded", "scanned", "draft", "summrized"],
-      default: "uploaded",
+      enum: ["scanned", "draft", "summrized"],
+    
     },
 
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     AIGeneratedSummary: {
       type: String,
@@ -21,7 +22,15 @@ const fileSchema = new mongoose.Schema(
     threads: {
       type: String,
     },
-    status: { enum: ["clean", "warning", "enfected"], default: "clean" },
+    status: { enum: ["clean", "warning", "enfected"], },
+    size: {
+      type: Number,
+    },
+    mimetype: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
+
+export const File = mongoose.model("file", fileSchema);

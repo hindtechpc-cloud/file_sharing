@@ -1,7 +1,10 @@
+import { useContext } from "react";
 import FileTable from "./FileListPanel/FileTable";
+import { FileContext } from "../../../context/FileContext";
+import { useEffect } from "react";
 
 export default function FileListPanel({ onSelectFile }) {
-  const files = [
+  const files2 = [
     {
       name: "Project_Alpha_Brief.docx",
       modified: "Oct 26, 2023",
@@ -17,10 +20,15 @@ export default function FileListPanel({ onSelectFile }) {
     },
   ];
 
+  const { files, loadFiles } = useContext(FileContext);
+  useEffect(() => {
+    loadFiles();
+  }, []);
+  console.log(files);
+
   return (
     <div className="bg-white rounded border border-gray-300">
       <FileTable files={files} onSelectFile={onSelectFile} />
     </div>
   );
 }
-

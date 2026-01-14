@@ -2,6 +2,7 @@ import express, { urlencoded } from "express";
 import { authRouter } from "./routes/authRoute.js";
 import { connectDB } from "./config/db.js";
 import cors from "cors";
+import { fileRouter } from "./routes/fileRoute.js";
 const PORT = 5000;
 const app = express();
 app.use(cors());
@@ -17,6 +18,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/file", fileRouter);
 app.listen(PORT, () => {
   console.log("server is running on port ", PORT);
 });

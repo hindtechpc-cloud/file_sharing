@@ -3,30 +3,34 @@ import axios from "axios";
 import { useContext } from "react";
 import { AuthContext } from "../../context/Authcontext";
 export default function ProfileSettings() {
-    const { user } = useContext(AuthContext);
+  const { user, login } = useContext(AuthContext);
   const fileRef = useRef(null);
   const [avatar, setAvatar] = useState(null);
+  const [fileData, setFileData] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
   const updateProfile = async () => {
-  
+    console.log(avatar, email, name);
     try {
       let formData = new FormData();
-      formData.append("file", avatar);
+      formData.append("file", fileData);
       formData.append("name", name);
       formData.append("email", email);
+      // console.log(formData);
       const res = await axios.put(
         "http://localhost:5000/api/auth/profile",
         formData,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,
-            "Content-Type":"application/form-data"
+            "Content-Type": "application/form-data",
           },
         }
       );
       console.log(res);
+      login({ user: res?.data?.user, token: user?.token });
+      // localStorage.removeItem("authUser");
     } catch (error) {
       console.log(error);
     }
@@ -35,7 +39,7 @@ export default function ProfileSettings() {
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    updateProfile();
+    setFileData(file);
     // Preview image
     setAvatar(URL.createObjectURL(file));
   };
@@ -43,6 +47,12 @@ export default function ProfileSettings() {
   const handleDelete = () => {
     setAvatar(null);
     fileRef.current.value = "";
+  };
+
+  const handleSubmit = () => {
+    console.log("name : ", name);
+    console.log("email  : ", email);
+    updateProfile();
   };
 
   return (
@@ -67,6 +77,7 @@ export default function ProfileSettings() {
           <input
             ref={fileRef}
             type="file"
+            name="file"
             accept="image/*"
             onChange={handleUpload}
             className="hidden"
@@ -94,11 +105,15 @@ export default function ProfileSettings() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input
           placeholder="Full Name"
+          name="name"
+          type="text"
           defaultValue="Alex Doe"
           className="border border-gray-100 shadow-2xl rounded-lg px-4 py-2 text-sm"
           onChange={(e) => setName(e.target.value)}
         />
         <input
+          name="email"
+          type="email"
           placeholder="Email Address"
           defaultValue="alex.doe@email.com"
           className="border border-gray-100 shadow-2xl rounded-lg px-4 py-2 text-sm"
@@ -106,7 +121,11 @@ export default function ProfileSettings() {
         />
       </div>
 
-      <button className="mt-4 text-sm font-medium text-blue-600 hover:underline">
+      <button
+        type="button"
+        className="mt-4 text-sm font-medium text-blue-600 hover:underline"
+        onClick={handleSubmit}
+      >
         Save Profile
       </button>
     </div>

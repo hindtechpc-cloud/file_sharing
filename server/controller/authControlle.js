@@ -104,10 +104,11 @@ export const login = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email,file } = req.body;
+  console.log(file)
   // const profilePic=req.file;
   const userId = req.decoded;
-
+  console.log("user", req.file);
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({
       message: "Invalid user id",

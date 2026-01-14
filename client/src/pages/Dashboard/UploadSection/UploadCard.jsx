@@ -1,7 +1,10 @@
 import { useState } from "react";
 import UploadButton from "./UploadButton";
 import UploadIcon from "./UploadIcon";
-
+import axios from "axios";
+import { useContext } from "react";
+import { AuthContext } from "../../../context/Authcontext";
+import { FileContext } from "../../../context/FileContext";
 const MAX_SIZE = 25 * 1024 * 1024;
 const ALLOWED_TYPES = [
   "application/pdf",
@@ -12,6 +15,31 @@ const ALLOWED_TYPES = [
 export default function UploadCard() {
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
+  const { files, setFiles } = useContext(FileContext);
+
+  const { user,loadFiles } = useContext(AuthContext);
+
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/file/upload-file",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+      setFiles([...files, res?.data?.doc]);
+      loadFiles()
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const validateFile = (file) => {
     if (file.size > MAX_SIZE) {
@@ -32,12 +60,14 @@ export default function UploadCard() {
 
     setError("");
     setFile(file);
+    uploadFile(file);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) handleFile(droppedFile);
+    uploadFile(file);
   };
 
   return (
